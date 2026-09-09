@@ -285,7 +285,11 @@ async function readOpenApiMarkdownFiles(locale: GrowattDocLocale): Promise<strin
   });
 
   return entries
-    .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".md"))
+    .filter((entry) =>
+      entry.isFile() &&
+      entry.name.toLowerCase().endsWith(".md") &&
+      !entry.name.startsWith("_")
+    )
     .map((entry) => entry.name);
 }
 
@@ -441,10 +445,31 @@ export const getGrowattReleaseNotesPageByVersion = cache(
 
 export const getGrowattReleaseNotesPage = cache(
   async (locale: GrowattDocLocale = "en"): Promise<GrowattSpecialMarkdownPage> => {
-    const versions = await getGrowattReleaseNoteVersions();
-    const latestVersion = versions[0];
-    if (!latestVersion) {
-      const sourceConfig = getLocaleSourceConfig(locale);
+    const sourceConfig = getLocaleSourceConfig(locale);
+    const fileName = locale === "en" ? "RELEASE_NOTES.en.md" : "RELEASE_NOTES.zh-CN.md";
+    const filePath = path.join(GROWATT_DOCS_ROOT_DIR, fileName);
+
+    try {
+      const [docMetas, markdown] = await Promise.all([
+        getGrowattDocMetas(locale),
+        fs.readFile(filePath, "utf8"),
+      ]);
+
+      const slugByFileName = buildGrowattInternalSlugMap(
+        docMetas.map((doc) => doc.fileName),
+      );
+      const displayMarkdown = prepareGrowattMarkdown(markdown, { slugByFileName });
+      const html = await renderGrowattMarkdownToHtml(displayMarkdown, { slugByFileName });
+
+      return {
+        slug: GROWATT_RELEASE_NOTES_SLUG,
+        fileName,
+        title: extractMarkdownTitle(markdown, sourceConfig.releaseNotesFallbackTitle),
+        markdown,
+        displayMarkdown,
+        html,
+      };
+    } catch (error) {
       return {
         slug: GROWATT_RELEASE_NOTES_SLUG,
         fileName: "",
@@ -454,7 +479,6 @@ export const getGrowattReleaseNotesPage = cache(
         html: "",
       };
     }
-    return getGrowattReleaseNotesPageByVersion(latestVersion, locale);
   },
 );
 

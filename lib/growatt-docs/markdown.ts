@@ -259,12 +259,12 @@ export async function renderGrowattMarkdownToHtml(
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(remarkRehype)
+    .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeSlug)
     .use(rehypeMarkProductReviewTables)
     .use(rehypeMarkMermaidBlocks)
     .use(rehypeExternalLinksTargetBlank)
-    .use(rehypeStringify)
+    .use(rehypeStringify, { allowDangerousHtml: true })
     .process(rewrittenMarkdown);
 
   return String(result);

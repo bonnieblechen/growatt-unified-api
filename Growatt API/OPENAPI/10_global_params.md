@@ -97,7 +97,16 @@ Protected endpoints require an access token.
 | :--- | :--- | :--- |
 | `duration` | int | Duration in minutes. `0` means unlimited; `1~1440` minutes controls by the set duration |
 | `percentage` | int | Percentage of rated battery charge/discharge power, range `[-100,100]`; positive means charging and negative means discharging |
-| `type` | string | Command type: `selfConsumptionCommand`, `chargeOnlySelfConsumptionCommand`, `chargeCommand`, or `dischargeCommand`; the first two charge/discharge at the maximum available power by default, in which case `percentage` is ignored |
+| `type` | string | Command type: `selfConsumptionCommand`, `chargeOnlySelfConsumptionCommand`, `chargeCommand`, or `dischargeCommand` |
+
+**`type` Command Type Descriptions:**
+
+| Command Type | Description | Power Control |
+| :--- | :--- | :--- |
+| `selfConsumptionCommand` | Self-consumption mode with automatic charge/discharge. PV powers loads first; surplus charges battery; shortfall is met by discharging battery or grid import. | Charge/discharge power is automatically controlled by the system (max power); `percentage` parameter is ignored |
+| `chargeOnlySelfConsumptionCommand` | Similar to self-consumption mode, but battery can only charge from PV, not from grid. When PV is sufficient: PV powers loads first, surplus charges battery. When PV is insufficient: battery remains idle (no charging or discharging), loads draw from grid. | Charge power is automatically controlled by the system (max power); `percentage` parameter is ignored |
+| `chargeCommand` | Forced charging at specified power. Battery charges from available sources (PV and/or grid) at the commanded rate. | Respects `percentage` setting |
+| `dischargeCommand` | Forced discharging at specified power. Battery discharges at the commanded rate to supply loads or export to grid. | Respects `percentage` setting |
 
 ## Read-Back Shapes by `setType`
 

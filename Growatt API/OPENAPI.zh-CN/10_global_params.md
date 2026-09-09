@@ -97,7 +97,16 @@ sequenceDiagram
 | :--- | :--- | :--- |
 | `duration` | int | 持续时长（分钟）。`0` 表示不限时，`1~1440` 分钟按设定时长控制 |
 | `percentage` | int | 基于电池额定充放电功率的百分比，范围 `[-100,100]`，正值充电、负值放电 |
-| `type` | string | 指令类型：`selfConsumptionCommand`、`chargeOnlySelfConsumptionCommand`、`chargeCommand`、`dischargeCommand`；其中前两者默认以最大可充放电功率充放电，此时 `percentage` 不生效 |
+| `type` | string | 指令类型：`selfConsumptionCommand`、`chargeOnlySelfConsumptionCommand`、`chargeCommand`、`dischargeCommand` |
+
+**`type` 指令类型说明：**
+
+| 指令类型 | 说明 | 功率控制 |
+| :--- | :--- | :--- |
+| `selfConsumptionCommand` | 自发自用模式，自动充放电。光伏优先供负载，余量给电池充电；不足时电池放电或从电网取电补充。 | 充放电功率由系统自动控制（最大功率），`percentage` 参数无效 |
+| `chargeOnlySelfConsumptionCommand` | 该模式类似于自发自用，区别在于，电池只能从光伏取电而不能从电网取电。光伏充足时：光伏先满足负载，多余电量给电池充电。光伏不足时：电池不充不放，负载从市电取电。 | 充电功率由系统自动控制（最大功率），`percentage` 参数无效 |
+| `chargeCommand` | 强制以指定功率充电。电池从可用电源（光伏和/或市电）以指定功率充电。 | 遵循 `percentage` 设定 |
+| `dischargeCommand` | 强制以指定功率放电。电池以指定功率放电，供给负载或向电网输出。 | 遵循 `percentage` 设定 |
 
 ## 各 `setType` 的回读结构
 

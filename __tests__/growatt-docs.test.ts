@@ -28,6 +28,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import {
   GROWATT_APPENDIX_D_OPENAPI_SUPPORT_SCOPE_SLUG,
+  GROWATT_APPENDIX_E_API_RATE_LIMITING_SLUG,
   GROWATT_APPENDIX_TERMINOLOGY_SLUG,
   GROWATT_CODES_SLUG,
   GROWATT_PROTOCOL_MAPPING_HREF,
@@ -288,11 +289,11 @@ describe("growatt docs source-of-truth loader", () => {
     const releaseNotes = await getGrowattReleaseNotesPage("en");
 
     expect(releaseNotes.slug).toBe(GROWATT_RELEASE_NOTES_SLUG);
-    expect(releaseNotes.fileName).toBe("customer-api-doc-change-note-2026-07-17.en.md");
-    expect(releaseNotes.title).toBe("Growatt Open API Documentation Change Notice (Customer-Facing)");
+    expect(releaseNotes.fileName).toBe("customer-api-doc-change-note-2026-08-14.en.md");
+    expect(releaseNotes.title).toBe("Growatt Open API Changelog");
     expect(releaseNotes.html).toContain("<article>");
-    expect(releaseNotes.markdown).toContain("## 2. Key Changes");
-    expect(releaseNotes.markdown).toContain("`maxChargePower`");
+    expect(releaseNotes.markdown).toContain("## 2026-08-14");
+    expect(releaseNotes.markdown).toContain("### Device Information");
     expect(releaseNotes.markdown).toContain("`getDeviceInfo`");
   });
 
@@ -329,10 +330,10 @@ describe("growatt docs source-of-truth loader", () => {
     const releaseNotes = await getGrowattReleaseNotesPage("zh-CN");
 
     expect(releaseNotes.slug).toBe(GROWATT_RELEASE_NOTES_SLUG);
-    expect(releaseNotes.fileName).toBe("customer-api-doc-change-note-2026-07-17.md");
-    expect(releaseNotes.title).toBe("Growatt Open API 文档变更说明（面向客户）");
-    expect(releaseNotes.markdown).toContain("`maxChargePower`");
-    expect(releaseNotes.markdown).toContain("`getDeviceInfo`");
+    expect(releaseNotes.fileName).toBe("customer-api-doc-change-note-2026-08-14.md");
+    expect(releaseNotes.title).toBe("Growatt Open API 更新日志");
+    expect(releaseNotes.markdown).toContain("## 2026-08-14");
+    expect(releaseNotes.markdown).toContain("### 设备信息");
   });
 
   it("publishes appendix A/B/C links in both overview locales and appendix D in the English overview", async () => {
@@ -375,20 +376,20 @@ describe("growatt docs source-of-truth loader", () => {
 
     expect(appendixTermEn.slug).toBe(GROWATT_APPENDIX_TERMINOLOGY_SLUG);
     expect(appendixTermZh.slug).toBe(GROWATT_APPENDIX_TERMINOLOGY_SLUG);
-    expect(appendixTermEn.fileName).toBe("12_ess_terminology.md");
-    expect(appendixTermZh.fileName).toBe("12_ess_terminology.md");
+    expect(appendixTermEn.fileName).toBe("13_ess_terminology.md");
+    expect(appendixTermZh.fileName).toBe("13_ess_terminology.md");
     expect(appendixTermEn.title).toBe("Appendix B Glossary");
     expect(appendixTermZh.title).toBe("附录 B 术语表");
     expect(appendixTermEn.markdown).toContain("state of charge (SOC)");
     expect(appendixTermZh.markdown).toContain("公开术语表");
-    expect(appendixTermEn.displayMarkdown).not.toContain("12_ess_terminology");
+    expect(appendixTermEn.displayMarkdown).not.toContain("13_ess_terminology");
     expect(appendixTermEn.displayMarkdown).toContain("/growatt-openapi/semantic-model");
     expect(appendixTermZh.displayMarkdown).toContain("/growatt-openapi/semantic-model");
 
     expect(semanticEn.slug).toBe(GROWATT_SEMANTIC_MODEL_SLUG);
     expect(semanticZh.slug).toBe(GROWATT_SEMANTIC_MODEL_SLUG);
-    expect(semanticEn.fileName).toBe("13_ess_semantic_model.md");
-    expect(semanticZh.fileName).toBe("13_ess_semantic_model.md");
+    expect(semanticEn.fileName).toBe("14_ess_semantic_model.md");
+    expect(semanticZh.fileName).toBe("14_ess_semantic_model.md");
     expect(semanticEn.title).toBe("Appendix C Semantic Model");
     expect(semanticZh.title).toBe("附录 C 语义模型");
     expect(semanticEn.markdown).not.toBe(semanticZh.markdown);
@@ -499,13 +500,13 @@ describe("growatt docs source-of-truth loader", () => {
     expect(appendixZh.title).toBe("附录 B 术语表");
     expect(appendixEn.markdown).toContain("state of charge (SOC)");
     expect(appendixEn.markdown).toContain("Export Limit");
-    expect(appendixEn.markdown).toContain("[ESS Semantic Model](./13_ess_semantic_model.md)");
+    expect(appendixEn.markdown).toContain("[ESS Semantic Model](./14_ess_semantic_model.md)");
     expect(appendixZh.markdown).toContain("state of charge (SOC)");
-    expect(appendixZh.markdown).toContain("[ESS 语义模型](./13_ess_semantic_model.md)");
+    expect(appendixZh.markdown).toContain("[ESS 语义模型](./14_ess_semantic_model.md)");
     expect(appendixZh.markdown).not.toContain("基线来源：");
   });
 
-  it("registers quick guide, release notes, protocol mapping, and appendix A/B/C/D special pages in navigation order", () => {
+  it("registers quick guide, release notes, protocol mapping, and appendix A/B/C/D/E special pages in navigation order", () => {
     const specialPages = getGrowattSpecialPages();
 
     expect(specialPages.map((page) => page.slug)).toEqual([
@@ -516,6 +517,7 @@ describe("growatt docs source-of-truth loader", () => {
       GROWATT_APPENDIX_TERMINOLOGY_SLUG,
       GROWATT_SEMANTIC_MODEL_SLUG,
       GROWATT_APPENDIX_D_OPENAPI_SUPPORT_SCOPE_SLUG,
+      GROWATT_APPENDIX_E_API_RATE_LIMITING_SLUG,
     ]);
     expect(specialPages[0]).toEqual(
       expect.objectContaining({
@@ -599,7 +601,7 @@ describe("growatt docs source-of-truth loader", () => {
       ),
     ]);
 
-    expect(loaderSource).toContain('const GROWATT_SEMANTIC_MODEL_DOC_FILE_NAME = "13_ess_semantic_model.md";');
+    expect(loaderSource).toContain('const GROWATT_SEMANTIC_MODEL_DOC_FILE_NAME = "14_ess_semantic_model.md";');
     expect(loaderSource).not.toContain("growatt-ess-semantic-model-preliminary-review.md");
     expect(loaderSource).toContain('const GROWATT_DOCS_ROOT_DIR = path.join(process.cwd(), "docs");');
     expect(loaderSource).toContain(

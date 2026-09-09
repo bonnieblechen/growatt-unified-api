@@ -75,6 +75,7 @@ sequenceDiagram
 ## 附录
 
 - [附录 A Growatt Codes](/growatt-openapi/growatt-codes)
-- [附录 B 术语表](./12_ess_terminology.md)
-- [附录 C 语义模型](./13_ess_semantic_model.md)
-- [附录 D 产品兼容性](./14_appendix_d_openapi_support_scope.md)
+- [附录 B 术语表](./13_ess_terminology.md)
+- [附录 C 语义模型](./14_ess_semantic_model.md)
+- [附录 D 产品兼容性](./15_appendix_d_openapi_support_scope.md)
+- [附录 E API 频率限制](./16_api_rate_limiting.md)

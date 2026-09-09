@@ -81,4 +81,4 @@
 - [Device Data Query API](./08_api_device_data.md) - Query real-time device telemetry data
 - [Device Dispatch API](./05_api_device_dispatch.md) - Send control commands to devices
 - [Device Authorization API](./04_api_device_auth.md) - Authorize devices for API access
-- [ESS Terminology Glossary](./12_ess_terminology.md) - Energy storage system terminology
+- [ESS Terminology Glossary](./13_ess_terminology.md) - Energy storage system terminology

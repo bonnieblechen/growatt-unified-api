@@ -1030,3 +1030,28 @@
     min-width: 0;
   }
 }
+
+/* Release Notes Table - Uniform Column Widths (only for 3-column tables) */
+.growatt-docs-content table:not(.growatt-product-review-table):not(.growatt-codes-table) thead tr th:nth-child(3):last-child {
+  /* This selector only matches tables with exactly 3 columns */
+}
+
+.growatt-docs-content table:not(.growatt-product-review-table):not(.growatt-codes-table):has(thead tr th:nth-child(3):last-child) {
+  table-layout: fixed !important;
+  display: table !important;
+}
+
+.growatt-docs-content table:not(.growatt-product-review-table):not(.growatt-codes-table):has(thead tr th:nth-child(3):last-child) th:first-child,
+.growatt-docs-content table:not(.growatt-product-review-table):not(.growatt-codes-table):has(thead tr th:nth-child(3):last-child) td:first-child {
+  width: 50% !important;
+}
+
+.growatt-docs-content table:not(.growatt-product-review-table):not(.growatt-codes-table):has(thead tr th:nth-child(3):last-child) th:nth-child(2),
+.growatt-docs-content table:not(.growatt-product-review-table):not(.growatt-codes-table):has(thead tr th:nth-child(3):last-child) td:nth-child(2) {
+  width: 30% !important;
+}
+
+.growatt-docs-content table:not(.growatt-product-review-table):not(.growatt-codes-table):has(thead tr th:nth-child(3):last-child) th:nth-child(3),
+.growatt-docs-content table:not(.growatt-product-review-table):not(.growatt-codes-table):has(thead tr th:nth-child(3):last-child) td:nth-child(3) {
+  width: 20% !important;
+}

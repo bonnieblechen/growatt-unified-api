@@ -81,4 +81,4 @@
 - [设备数据查询 API](./08_api_device_data.md) - 查询设备实时遥测数据
 - [设备控制 API](./05_api_device_dispatch.md) - 向设备发送控制指令
 - [设备授权 API](./04_api_device_auth.md) - 授权设备供 API 访问
-- [储能系统术语表](./12_ess_terminology.md) - 储能系统相关术语
+- [储能系统术语表](./13_ess_terminology.md) - 储能系统相关术语
