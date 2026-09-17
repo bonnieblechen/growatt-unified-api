@@ -17,19 +17,19 @@
 
 ## 发布结论
 
-ShineTools 文档作为独立内部知识库发布到现有 `growatt-openapi-docs` Cloudflare Pages 项目，但使用独立路径、独立导航和独立 Cloudflare Access 应用。
+ShineTools 文档发布到现有 `growatt-openapi-docs` Cloudflare Pages 项目，使用独立路径、独立导航和独立 Cloudflare Access 应用。2026-09-17 已将线上策略改为任意邮箱验证码登录，并在后台回读确认，邮箱仅用于身份与登录记录，由内容维护者控制上线内容。本次未使用外部邮箱完成收码及验证码登录的端到端验证。
 
 | 项目 | 约定 |
 |---|---|
 | 正式入口 | `https://vpp.myshine.online/shinetools/` |
 | Pages 入口 | `https://growatt-openapi-docs.pages.dev/shinetools/` |
-| 公开状态 | 非公开；必须经过 Cloudflare Access |
+| 访问方式 | 任意邮箱完成 Cloudflare Access 验证后可阅读，无域名或个人邮箱白名单 |
 | 内容来源 | `docs/shinetools-settings/**/*.md` |
 | 构建方式 | Next.js 静态导出到 `out/shinetools` |
 | Access 应用 | `ShineTools Settings Docs (shinetools-settings-docs)` |
 | 默认会话时长 | 7 天 |
 
-ShineTools 与公开的 `/growatt-openapi` 分离。访问 ShineTools 的成员不自动获得协议 SSOT 权限，协议 SSOT 的成员也不自动获得 ShineTools 权限；如果两者读者相同，应分别维护策略或使用受控的 Access Group。
+ShineTools 与公开的 `/growatt-openapi` 分离。ShineTools 与协议 SSOT 分别维护 Access 应用，两者均允许任意邮箱验证码登录。
 
 ## 入口与边界
 
@@ -104,7 +104,7 @@ Markdown 源文件只在构建时读取；线上发布的是静态 HTML 和前�
 |---|---|
 | Application name | `ShineTools Settings Docs (shinetools-settings-docs)` |
 | Session duration | `7 days` |
-| Login method | `One-time PIN` 或组织统一身份源 |
+| Login method | `One-time PIN` |
 | Public hostname 1 | `vpp.myshine.online` + `/shinetools*` |
 | Public hostname 2 | `growatt-openapi-docs.pages.dev` + `/shinetools*` |
 
@@ -114,20 +114,19 @@ Markdown 源文件只在构建时读取；线上发布的是静态 HTML 和前�
 |---|---|
 | Policy name | `ShineTools Settings Readers` |
 | Action | `Allow` |
-| Include | `Emails ending in @growatt.com` |
-| Include | 经批准的外部评审邮箱或 Access Group |
-| Exclude | 离职、禁用或临时冻结成员组 |
+| Include | `Login Methods → One-time PIN` |
+| 邮箱域名 / 个人邮箱 / 读者分组限制 | 无；同时检查并清理 Require / Exclude 中的相关限制 |
 
-外部评审人员优先放入单独 Access Group，并设置到期清理流程；不要长期维护不可追踪的散落邮箱。
+保留验证码校验，不使用 `Bypass`。Cloudflare Access 认证日志作为后台登录记录；它不等同于逐页浏览历史，保留期限以账户套餐和日志配置为准。
 
-### 当前生产配置（2026-07-14）
+### 当前生产配置（2026-09-17）
 
 | 项目 | 当前值 |
 |---|---|
 | Pages project URL | `https://growatt-openapi-docs.pages.dev` |
 | Access application ID | `8b90e87d-c986-4671-a42f-f236b22d130c` |
 | Access policy ID | `fa80eeb6-dc88-4e2a-a28e-5d039aeea1c2` |
-| 允许范围 | `Emails ending in @growatt.com` |
+| 允许范围 | `Allow` + `Include: Login Method One-time PIN`，任意邮箱验证码登录 |
 | 身份源 | 接受当前账户中所有可用身份源 |
 | Session duration | `1 week` |
 
@@ -202,12 +201,12 @@ npx wrangler pages deploy out --project-name growatt-openapi-docs
 
 ## 权限变更流程
 
-1. 权限申请写明人员、邮箱、用途、所属组织和期望到期时间。
-2. 内部员工优先通过企业邮箱域或统一身份组授权。
-3. 外部人员加入有负责人和到期日的 Access Group。
+1. 发布前确认内容可供任意已验证邮箱的读者阅读。
+2. 不再申请或维护邮箱域名、个人邮箱和外部评审读者组白名单。
+3. 登录仅验证邮箱归属并记录身份；在 Cloudflare Access 认证日志查看登录情况。
 4. 调整策略前保存当前应用和策略截图或导出记录。
-5. 调整后分别用允许账号和未允许账号验证。
-6. 每季度审计外部评审成员和长期未使用账号。
+5. 调整后分别用企业邮箱和外部邮箱验证，并确认错误验证码无法登录。
+6. 定期检查上线内容、认证日志及日志保留配置。
 
 文档内容维护者与 Access 管理员应分离：内容合并不自动授予阅读权限，权限变更也不修改 Markdown 内容。
 
@@ -215,7 +214,7 @@ npx wrangler pages deploy out --project-name growatt-openapi-docs
 
 | 症状 | 检查 | 处理 |
 |---|---|---|
-| 所有人都看到 Access 登录 | Access 正常行为 | 使用允许邮箱登录 |
+| 所有人都看到 Access 登录 | Access 正常行为 | 使用任意可接收验证码的邮箱登录 |
 | 登录后仍返回 403 | JWT 未到达 Pages Function、hostname/path 不匹配 | 检查 Access 应用目标和代理链路 |
 | 未登录直接看到文档 | Access 和 fail-closed 均未生效 | 立即回滚部署并检查 `_routes.json` |
 | 只有 Pages 域名暴露 | Access 只配置了自定义域 | 给 `pages.dev` 增加相同 `/shinetools*` 目标 |
