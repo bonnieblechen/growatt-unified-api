@@ -4,46 +4,43 @@
 
 - 通过设备序列号查询设备的历史能量统计数据和详细采样数据
 - 接口仅返回当前 token 有权访问的设备结果；未授权设备返回 `DEVICE_SN_DOES_NOT_HAVE_PERMISSION`
-- 两种查询模式：
-  - **历史统计** (`level` 参数)：查询每日或每月汇总的能量数据
-  - **每日明细** (无 `level` 参数)：查询日内采样序列
+- **getDeviceEnergyData** — 按日/月查询发电量统计
+- **getDeviceDailyDetail** — 按日查询明细采样序列
 - 历史数据查询频率限制：`1 次/分钟/设备`
-
-## 请求 URL
-
-- `/oauth2/HistoricalData`
-
-## 请求方法
-
-- `GET`
-- `Content-Type: application/json`
-- `Authorization: Bearer <token>`
 
 ## 历史数据查询流程
 
 ```mermaid
 flowchart TD
-    A["选择查询模式"] --> B{"需要汇总统计?"}
-    B -->|"是"| C["使用 level 参数"]
-    B -->|"否"| D["不带 level 获取采样明细"]
+    A["选择接口"] --> B{"需要汇总统计?"}
+    B -->|"是"| C["调用 getDeviceEnergyData"]
+    B -->|"否"| D["调用 getDeviceDailyDetail"]
     C --> E{"level = Day 还是 Month?"}
     E -->|"Day"| F["获取单日能量合计"]
     E -->|"Month"| G["获取整月逐日能量序列"]
     D --> H["获取日内采样序列"]
-    F --> I["解析每日能量字段"]
+    F --> I["解析 DeviceHistoricalData 字段"]
     G --> I
-    H --> J["解析采样点数据"]
+    H --> J["解析 DeviceDailyDetail 采样点数据"]
 ```
 
-## HTTP Header 参数
+---
 
-| 参数 | 必填 | 类型 | 说明 | 示例 |
-| :--- | :--- | :--- | :--- | :--- |
-| `Authorization` | 是 | string | 访问令牌 | `Bearer ACCESS_TOKEN` |
+## 1. getDeviceEnergyData — 按日/月查询发电量统计
 
-## 查询参数
+按日或按月查询设备能量统计数据。
 
-### 模式 1：历史统计 (DeviceHistoricalData)
+### 请求 URL
+
+- `/oauth2/getDeviceEnergyData`
+
+### 请求方法
+
+- `POST`
+- `Content-Type: application/json`
+- `Authorization: Bearer <token>`
+
+### HTTP Body 参数
 
 | 参数 | 必填 | 类型 | 说明 | 示例 |
 | :--- | :--- | :--- | :--- | :--- |
@@ -58,18 +55,9 @@ flowchart TD
 | `Day` | 单日数据 | 必填 | 返回指定日期当天的能量合计 |
 | `Month` | 整月逐日序列 | 必填 | 返回指定日期所在月份的整月逐日能量序列 |
 
-### 模式 2：每日明细 (DeviceDailyDetail)
+### 请求示例
 
-| 参数 | 必填 | 类型 | 说明 | 示例 |
-| :--- | :--- | :--- | :--- | :--- |
-| `deviceSn` | 是 | string | 设备序列号 | `"DEVICE_SN_1"` |
-| `date` | 是 | string | 日期，格式 `yyyy-MM-dd` | `"2026-08-19"` |
-
-**注意：** 不带 `level` 参数时返回日内采样序列。
-
-## 请求示例
-
-### 示例 1：查询整月统计
+#### 示例 1：查询整月统计
 
 ```json
 {
@@ -79,7 +67,7 @@ flowchart TD
 }
 ```
 
-### 示例 2：查询单日统计
+#### 示例 2：查询单日统计
 
 ```json
 {
@@ -89,18 +77,7 @@ flowchart TD
 }
 ```
 
-### 示例 3：查询每日明细
-
-```json
-{
-    "deviceSn": "DEVICE_SN_1",
-    "date": "2026-08-19"
-}
-```
-
-## 响应结构
-
-### 模式 1：历史统计响应
+### 响应结构（DeviceHistoricalData）
 
 ```json
 {
@@ -130,7 +107,67 @@ flowchart TD
 }
 ```
 
-### 模式 2：每日明细响应
+### 响应字段定义
+
+| 字段 | 类型 | 单位 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `code` | int | - | API 状态码；`0` 表示成功 |
+| `msg` | string | - | 响应信息 |
+| `data` | object | - | 主数据对象 |
+| `data.deviceSn` | string | - | 设备序列号 |
+| `data.list` | array | - | 每日能量记录数组 |
+| `data.list[].date` | string | - | 日期，格式 `YYYY-MM-DD` |
+| `data.list[].epv` | double | kWh | 当日 PV 发电量（对应 `epvToday`） |
+| `data.list[].etoUser` | double | kWh | 当日电网取电量（对应 `etoUserToday`） |
+| `data.list[].etoGrid` | double | kWh | 当日电网送电量（对应 `etoGridToday`） |
+| `data.list[].echarge` | double | kWh | 当日电池充电量（对应 `echargeToday`） |
+| `data.list[].edischarge` | double | kWh | 当日电池放电量（对应 `edischargeToday`） |
+
+**能量字段映射：**
+
+| 历史字段 | 对应实时字段 | 说明 |
+| :--- | :--- | :--- |
+| `epv` | `epvToday` | PV 发电 |
+| `etoUser` | `etoUserToday` | 电网取电 |
+| `etoGrid` | `etoGridToday` | 电网送电 |
+| `echarge` | `echargeToday` | 电池充电 |
+| `edischarge` | `edischargeToday` | 电池放电 |
+
+---
+
+## 2. getDeviceDailyDetail — 按日查询明细采样序列
+
+查询某一天的日内采样序列。
+
+### 请求 URL
+
+- `/oauth2/getDeviceDailyDetail`
+
+### 请求方法
+
+- `POST`
+- `Content-Type: application/json`
+- `Authorization: Bearer <token>`
+
+### HTTP Body 参数
+
+| 参数 | 必填 | 类型 | 说明 | 示例 |
+| :--- | :--- | :--- | :--- | :--- |
+| `deviceSn` | 是 | string | 设备序列号 | `"DEVICE_SN_1"` |
+| `date` | 是 | string | 日期，格式 `yyyy-MM-dd` | `"2026-08-19"` |
+
+### 请求示例
+
+#### 示例：查询每日明细
+
+```json
+{
+    "deviceSn": "DEVICE_SN_1",
+    "date": "2026-08-19"
+}
+```
+
+### 响应结构（DeviceDailyDetail）
 
 ```json
 {
@@ -175,35 +212,7 @@ flowchart TD
 }
 ```
 
-## 响应字段定义
-
-### 历史统计字段
-
-| 字段 | 类型 | 单位 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `code` | int | - | API 状态码；`0` 表示成功 |
-| `msg` | string | - | 响应信息 |
-| `data` | object | - | 主数据对象 |
-| `data.deviceSn` | string | - | 设备序列号 |
-| `data.list` | array | - | 每日能量记录数组 |
-| `data.list[].date` | string | - | 日期，格式 `YYYY-MM-DD` |
-| `data.list[].epv` | double | kWh | 当日 PV 发电量（对应 `epvToday`） |
-| `data.list[].etoUser` | double | kWh | 当日电网取电量（对应 `etoUserToday`） |
-| `data.list[].etoGrid` | double | kWh | 当日电网送电量（对应 `etoGridToday`） |
-| `data.list[].echarge` | double | kWh | 当日电池充电量（对应 `echargeToday`） |
-| `data.list[].edischarge` | double | kWh | 当日电池放电量（对应 `edischargeToday`） |
-
-**能量字段映射：**
-
-| 历史字段 | 对应实时字段 | 说明 |
-| :--- | :--- | :--- |
-| `epv` | `epvToday` | PV 发电 |
-| `etoUser` | `etoUserToday` | 电网取电 |
-| `etoGrid` | `etoGridToday` | 电网送电 |
-| `echarge` | `echargeToday` | 电池充电 |
-| `edischarge` | `edischargeToday` | 电池放电 |
-
-### 每日明细字段
+### 响应字段定义
 
 每日明细返回与[设备数据 API](./08_api_device_data.md) 相同的遥测字段，每条记录代表一个采样点。主要字段包括：
 

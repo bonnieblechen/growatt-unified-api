@@ -35,8 +35,8 @@ const deviceDataSheet = [
   ['', '', '', '', ''],
   ['/oauth2/getDeviceOperationMode', '查询设备电池运行模式', 'deviceSn（必填）\nsetType（必填，固定值：duration_and_power_charge_discharge）\nrequestId（必填）', '运行模式枚举', 'data: 字符串类型，返回当前运行模式\n可能值：\n- SELF_RELIANCE（自给自足）\n- TIME_OF_USE（分时电价）\n- IMPORT_FOCUS（优先充电）\n- EXPORT_FOCUS（优先放电）\n- IDLE（待机）'],
   ['', '', '', '', ''],
-  ['/oauth2/HistoricalData (DeviceHistoricalData)', '查询设备历史统计数据（按月/日）', 'deviceSn（必填）\nlevel（必填：Day / Month）\ndate（必填，格式 yyyy-MM-dd）', '历史统计数据', 'data.list[].date（日期 yyyy-MM-dd）\ndata.list[].epv（当日PV发电量 kWh）\ndata.list[].etoUser（当日电网取电量 kWh）\ndata.list[].etoGrid（当日电网送电量 kWh）\ndata.list[].echarge（当日电池充电量 kWh）\ndata.list[].edischarge（当日电池放电量 kWh）\n\nlevel=Day: 返回单日统计\nlevel=Month: 返回整月逐日序列\n缺数天保留 date，电量字段返回 null'],
-  ['/oauth2/HistoricalData (DeviceDailyDetail)', '查询设备单日明细采样序列', 'deviceSn（必填）\ndate（必填，格式 yyyy-MM-dd）', '单日明细采样', '返回该日所有采样点，每笔包含完整遥测字段（与 getDeviceData 一致）：\nutcTime, ppv, pac, payLoadPower, batPower, soc, status, batteryStatus, priority, faultCode, protectCode, reactivePower, fac, meterPower, etoUserToday, etoUserTotal, etoGridToday, etoGridTotal, epvToday, epvTotal, pexPower, vac1/2/3, maxChargePower, maxDischargePower, batteryList[]\n按 utcTime 升序排列']
+  ['/oauth2/getDeviceEnergyData (DeviceHistoricalData)', '查询设备历史统计数据（按日/月）', 'deviceSn（必填）\nlevel（必填：Day / Month）\ndate（必填，格式 yyyy-MM-dd）', '历史统计数据', 'data.list[].date（日期 yyyy-MM-dd）\ndata.list[].epv（当日PV发电量 kWh）\ndata.list[].etoUser（当日电网取电量 kWh）\ndata.list[].etoGrid（当日电网送电量 kWh）\ndata.list[].echarge（当日电池充电量 kWh）\ndata.list[].edischarge（当日电池放电量 kWh）\n\nlevel=Day: 返回单日统计\nlevel=Month: 返回整月逐日序列\n缺数天保留 date，电量字段返回 null'],
+  ['/oauth2/getDeviceDailyDetail (DeviceDailyDetail)', '查询设备单日明细采样序列', 'deviceSn（必填）\ndate（必填，格式 yyyy-MM-dd）', '单日明细采样', '返回该日所有采样点，每笔包含完整遥测字段（与 getDeviceData 一致）：\nutcTime, ppv, pac, payLoadPower, batPower, soc, status, batteryStatus, priority, faultCode, protectCode, reactivePower, fac, meterPower, etoUserToday, etoUserTotal, etoGridToday, etoGridTotal, epvToday, epvTotal, pexPower, vac1/2/3, maxChargePower, maxDischargePower, batteryList[]\n按 utcTime 升序排列']
 ];
 
 // 四、设备数据推送类
@@ -79,7 +79,8 @@ const rateLimitSheet = [
   ['/oauth2/getDeviceInfo', '查询设备信息', '60s', 'CLIENT_AND_DEVICE', '每个 client 对每个设备 60 秒最多 1 次请求', 'code: 105\nmessage: "Endpoint rate limited for clientId=client***, retry after Xms"'],
   ['/oauth2/getDeviceData', '查询设备数据', '10s', 'CLIENT_AND_DEVICE', '每个 client 对每个设备 10 秒最多 1 次请求', '同上'],
   ['/oauth2/getDeviceOperationMode', '查询设备运行模式', '60s', 'CLIENT_AND_DEVICE', '每个 client 对每个设备 60 秒最多 1 次请求', '同上'],
-  ['/oauth2/HistoricalData', '查询历史数据（统计/明细）', '60s（建议）', 'CLIENT_AND_DEVICE', '每个 client 对每个设备 60 秒最多 1 次请求\n历史查询较重，建议与 getDeviceInfo 限制一致', '同上'],
+  ['/oauth2/getDeviceEnergyData', '查询历史统计数据（按日/月）', '60s（建议）', 'CLIENT_AND_DEVICE', '每个 client 对每个设备 60 秒最多 1 次请求\n历史查询较重，建议与 getDeviceInfo 限制一致', '同上'],
+  ['/oauth2/getDeviceDailyDetail', '查询设备单日明细采样序列', '60s（建议）', 'CLIENT_AND_DEVICE', '每个 client 对每个设备 60 秒最多 1 次请求\n历史查询较重，建议与 getDeviceInfo 限制一致', '同上'],
   ['/oauth2/deviceDispatch', '设备调度下发', '5s', 'CLIENT_AND_DEVICE', '每个 client 对每个设备 5 秒最多 1 次请求（12 RPM）', '同上'],
   ['/oauth2/readDeviceDispatch', '读取调度参数', '5s', 'CLIENT_AND_DEVICE', '每个 client 对每个设备 5 秒最多 1 次请求（12 RPM）', '同上'],
   ['/oauth2/getDeviceList', '获取可授权设备列表', '60s', 'CLIENT_ONLY', '每个 client 60 秒最多 1 次请求（不区分设备）', '同上'],
@@ -140,7 +141,7 @@ const overviewSheet = [
   ['接口分类', '接口数量', '主要功能', '关键特性'],
   ['认证授权类', '6个', 'OAuth2 认证、设备授权管理', '支持 authorization_code 和 client_credentials 两种模式'],
   ['设备信息查询类', '1个', '查询设备静态配置信息', '返回 29 个字段，包含设备、采集器、电池、电站信息；60秒/次/设备'],
-  ['设备数据查询类', '4个', '实时数据、运行模式、历史统计、单日明细', 'getDeviceData: 39个主字段，10秒/次\ngetDeviceOperationMode: 5种运行模式，60秒/次\nDeviceHistoricalData: 按月/日统计，60秒/次\nDeviceDailyDetail: 单日采样序列，60秒/次'],
+  ['设备数据查询类', '4个', '实时数据、运行模式、历史统计、单日明细', 'getDeviceData: 39个主字段，10秒/次\ngetDeviceOperationMode: 5种运行模式，60秒/次\ngetDeviceEnergyData: 按日/月统计，60秒/次\ngetDeviceDailyDetail: 单日采样序列，60秒/次'],
   ['设备数据推送类', '1个', 'Webhook 主动推送', '推送结构与 getDeviceData 一致'],
   ['设备调度控制类', '2个', '下发控制指令、回读参数', '支持 7 种 setType，5秒/次/设备'],
   ['', '', '├─ 分时段充放电', '最多 16 个时段'],
