@@ -1,5 +1,21 @@
 # Growatt Open API Release Notes
 
+## 2026-09-24
+
+### Global Parameters
+
+| Update | Affected APIs | Type |
+|--------|--------------|------|
+| Added the current Growatt response error codes | / | documentation |
+
+### Historical Data
+
+| Update | Affected APIs | Type |
+|--------|--------------|------|
+| Updated response structure examples for `getDeviceEnergyData` and `getDeviceDailyDetail` | `getDeviceEnergyData`, `getDeviceDailyDetail` | documentation |
+
+---
+
 ## 2026-09-11
 
 ### Historical Data

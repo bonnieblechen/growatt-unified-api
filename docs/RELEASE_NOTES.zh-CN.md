@@ -1,5 +1,21 @@
 # Growatt Open API Release Notes
 
+## 2026-09-24
+
+### 全局参数
+
+| 更新内容 | 受影响的 API | 类型 |
+|---------|-------------|------|
+| 补充古瑞瓦特当前使用的响应错误码 | / | 文档完善 |
+
+### 历史数据
+
+| 更新内容 | 受影响的 API | 类型 |
+|---------|-------------|------|
+| 更新 `getDeviceEnergyData` 和 `getDeviceDailyDetail` 的响应结构示例 | `getDeviceEnergyData`、`getDeviceDailyDetail` | 文档完善 |
+
+---
+
 ## 2026-09-11
 
 ### 历史数据
