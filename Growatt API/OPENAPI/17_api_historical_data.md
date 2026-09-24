@@ -4,46 +4,43 @@
 
 - Query historical energy statistics and detailed sampling data for a device by device serial number.
 - The API returns only device results that the current token is allowed to access; unauthorized devices return `DEVICE_SN_DOES_NOT_HAVE_PERMISSION`.
-- Two query modes:
-  - **Historical Statistics** (`level` parameter): Query daily or monthly aggregated energy data
-  - **Daily Detail** (no `level` parameter): Query intraday sampling sequence
+- **getDeviceEnergyData** — Query daily or monthly aggregated energy statistics
+- **getDeviceDailyDetail** — Query intraday sampling sequence
 - Maximum historical data request rate: `1 request / min / device`.
-
-## Request URL
-
-- `/oauth2/HistoricalData`
-
-## Request Method
-
-- `GET`
-- `Content-Type: application/json`
-- `Authorization: Bearer <token>`
 
 ## Historical Data Consumption Flow
 
 ```mermaid
 flowchart TD
-    A["Choose query mode"] --> B{"Need aggregated stats?"}
-    B -->|"Yes"| C["Use level parameter"]
-    B -->|"No"| D["Omit level for sampling detail"]
+    A["Choose endpoint"] --> B{"Need aggregated stats?"}
+    B -->|"Yes"| C["Call getDeviceEnergyData"]
+    B -->|"No"| D["Call getDeviceDailyDetail"]
     C --> E{"level = Day or Month?"}
     E -->|"Day"| F["Get single-day energy totals"]
     E -->|"Month"| G["Get daily energy series for full month"]
     D --> H["Get intraday sampling sequence"]
-    F --> I["Parse daily energy fields"]
+    F --> I["Parse DeviceHistoricalData fields"]
     G --> I
-    H --> J["Parse sampling points"]
+    H --> J["Parse DeviceDailyDetail sampling points"]
 ```
 
-## HTTP Header Parameters
+---
 
-| Parameter | Required | Type | Description | Example |
-| :--- | :--- | :--- | :--- | :--- |
-| `Authorization` | Yes | string | Access-token header | `Bearer ACCESS_TOKEN` |
+## 1. getDeviceEnergyData — Daily / Monthly Energy Statistics
 
-## Query Parameters
+Query daily or monthly aggregated energy statistics.
 
-### Mode 1: Historical Statistics (DeviceHistoricalData)
+### Request URL
+
+- `/oauth2/getDeviceEnergyData`
+
+### Request Method
+
+- `POST`
+- `Content-Type: application/json`
+- `Authorization: Bearer <token>`
+
+### HTTP Body Parameters
 
 | Parameter | Required | Type | Description | Example |
 | :--- | :--- | :--- | :--- | :--- |
@@ -58,18 +55,9 @@ flowchart TD
 | `Day` | Single day | Required | Returns energy totals for the specified date |
 | `Month` | Full month daily series | Required | Returns daily energy totals for the entire month containing the specified date |
 
-### Mode 2: Daily Detail (DeviceDailyDetail)
+### Request Examples
 
-| Parameter | Required | Type | Description | Example |
-| :--- | :--- | :--- | :--- | :--- |
-| `deviceSn` | Yes | string | Unique device serial number | `"DEVICE_SN_1"` |
-| `date` | Yes | string | Date in `yyyy-MM-dd` format | `"2026-08-19"` |
-
-**Note:** Omit the `level` parameter to return intraday sampling sequence.
-
-## Request Examples
-
-### Example 1: Query Monthly Statistics
+#### Example 1: Query Monthly Statistics
 
 ```json
 {
@@ -79,7 +67,7 @@ flowchart TD
 }
 ```
 
-### Example 2: Query Single Day Statistics
+#### Example 2: Query Single Day Statistics
 
 ```json
 {
@@ -89,27 +77,13 @@ flowchart TD
 }
 ```
 
-### Example 3: Query Daily Detail
-
-```json
-{
-    "deviceSn": "DEVICE_SN_1",
-    "date": "2026-08-19"
-}
-```
-
-## Response Structure
-
-### Mode 1: Historical Statistics Response
+### Response Structure
 
 ```json
 {
     "code": 0,
-    "msg": "success",
-    "data": {
-        "deviceSn": "DEVICE_SN_1",
-        "list": [
-            {
+    "data": [
+        {
                 "date": "2026-07-01",
                 "epv": 30.13,
                 "etoUser": 5.2,
@@ -125,21 +99,77 @@ flowchart TD
                 "echarge": 9.3,
                 "edischarge": 8.3
             }
-        ]
-    }
+    ],
+    "message": "SUCCESSFUL_OPERATION"
 }
 ```
 
-### Mode 2: Daily Detail Response
+### Response Field Definitions
+
+| Field | Type | Unit | Description |
+| :--- | :--- | :--- | :--- |
+| `code` | int | - | API status code; `0` means success |
+| `message` | string | - | Response message |
+| `data` | array | - | Array of daily energy records |
+| `data[].date` | string | - | Date in `YYYY-MM-DD` format |
+| `data[].epv` | double | kWh | Daily PV generation (corresponds to `epvToday`) |
+| `data[].etoUser` | double | kWh | Daily energy imported from grid (corresponds to `etoUserToday`) |
+| `data[].etoGrid` | double | kWh | Daily energy exported to grid (corresponds to `etoGridToday`) |
+| `data[].echarge` | double | kWh | Daily battery charge energy (corresponds to `echargeToday`) |
+| `data[].edischarge` | double | kWh | Daily battery discharge energy (corresponds to `edischargeToday`) |
+
+**Energy Field Mapping:**
+
+| Historical Field | Corresponding Real-time Field | Description |
+| :--- | :--- | :--- |
+| `epv` | `epvToday` | PV generation |
+| `etoUser` | `etoUserToday` | Grid import |
+| `etoGrid` | `etoGridToday` | Grid export |
+| `echarge` | `echargeToday` | Battery charge |
+| `edischarge` | `edischargeToday` | Battery discharge |
+
+---
+
+## 2. getDeviceDailyDetail — Intraday Sampling Detail
+
+Query intraday sampling sequence for a single day.
+
+### Request URL
+
+- `/oauth2/getDeviceDailyDetail`
+
+### Request Method
+
+- `POST`
+- `Content-Type: application/json`
+- `Authorization: Bearer <token>`
+
+### HTTP Body Parameters
+
+| Parameter | Required | Type | Description | Example |
+| :--- | :--- | :--- | :--- | :--- |
+| `deviceSn` | Yes | string | Unique device serial number | `"DEVICE_SN_1"` |
+| `date` | Yes | string | Date in `yyyy-MM-dd` format | `"2026-08-19"` |
+
+### Request Examples
+
+#### Example: Query Daily Detail
+
+```json
+{
+    "deviceSn": "DEVICE_SN_1",
+    "date": "2026-08-19"
+}
+```
+
+### Response Structure (DeviceDailyDetail)
 
 ```json
 {
     "code": 0,
-    "msg": "success",
-    "data": {
-        "deviceSn": "DEVICE_SN_1",
-        "list": [
-            {
+    "data": [
+        {
+            "deviceSn": "DEVICE_SN_1",
                 "utcTime": "2026-08-19 03:19:09",
                 "ppv": 0.0,
                 "pac": 0.0,
@@ -169,41 +199,13 @@ flowchart TD
                 "maxChargePower": 6000,
                 "maxDischargePower": 6000,
                 "batteryList": [...]
-            }
-        ]
-    }
+        }
+    ],
+    "message": "SUCCESSFUL_OPERATION"
 }
 ```
 
-## Response Field Definitions
-
-### Historical Statistics Fields
-
-| Field | Type | Unit | Description |
-| :--- | :--- | :--- | :--- |
-| `code` | int | - | API status code; `0` means success |
-| `msg` | string | - | Response message |
-| `data` | object | - | Main data object |
-| `data.deviceSn` | string | - | Device serial number |
-| `data.list` | array | - | Array of daily energy records |
-| `data.list[].date` | string | - | Date in `YYYY-MM-DD` format |
-| `data.list[].epv` | double | kWh | Daily PV generation (corresponds to `epvToday`) |
-| `data.list[].etoUser` | double | kWh | Daily energy imported from grid (corresponds to `etoUserToday`) |
-| `data.list[].etoGrid` | double | kWh | Daily energy exported to grid (corresponds to `etoGridToday`) |
-| `data.list[].echarge` | double | kWh | Daily battery charge energy (corresponds to `echargeToday`) |
-| `data.list[].edischarge` | double | kWh | Daily battery discharge energy (corresponds to `edischargeToday`) |
-
-**Energy Field Mapping:**
-
-| Historical Field | Corresponding Real-time Field | Description |
-| :--- | :--- | :--- |
-| `epv` | `epvToday` | PV generation |
-| `etoUser` | `etoUserToday` | Grid import |
-| `etoGrid` | `etoGridToday` | Grid export |
-| `echarge` | `echargeToday` | Battery charge |
-| `edischarge` | `edischargeToday` | Battery discharge |
-
-### Daily Detail Fields
+### Response Field Definitions
 
 Daily detail returns the same telemetry fields as [Device Data API](./08_api_device_data.md), with each record representing a single sampling point. Key fields include:
 

@@ -79,6 +79,42 @@ Protected endpoints require an access token.
 | Parameter-setting failed | `6` | `null` | `"PARAMETER_SETTING_FAILED"` |
 | Too many requests | `105` | `null` | `"TOO_MANY_REQUEST"` |
 
+### Error Codes
+
+The following response codes and messages are currently used by Growatt. A response code may map to more than one message; check `message` to identify the specific result.
+
+| `code` | `message` | Description |
+| :--- | :--- | :--- |
+| `0` | `SUCCESSFUL_OPERATION` | Operation successful |
+| `0` | `PARAMETER_SETTING_SUCCESSFUL` | Parameter setting successful |
+| `1` | `SYSTEM_ERROR` | System error |
+| `2` | `TOKEN_IS_INVALID` | Token is invalid |
+| `3` | `DATA_PERMISSION_VERIFICATION_FAILED` | Data permission verification failed |
+| `4` | `DEVICE_DOES_NOT_EXIST` | Device does not exist |
+| `5` | `DEVICE_OFFLINE` | Device is offline |
+| `6` | `PARAMETER_SETTING_FAILED` | Parameter setting failed |
+| `7` | `WRONG_DEVICE_TYPE` | Wrong device type |
+| `8` | `DEVICE_SN_CANNOT_BE_EMPTY` | Device SN cannot be empty |
+| `9` | `DATE_CANNOT_BE_EMPTY` | Date cannot be empty |
+| `10` | `PAGE_EMPTY` | Page is empty |
+| `11` | `DEVICE_SN_COUNT_LIMIT` | Device SN count limit exceeded |
+| `12` | `DEVICE_SN_DOES_NOT_HAVE_PERMISSION` | Device SN does not have permission |
+| `13` | `VALUE_PARAMETER_VERIFICATION_FAILED` | Value parameter verification failed |
+| `14` | `WRONG_PARAMETER_VALUE` | Wrong parameter value |
+| `15` | `PARAMETER_SETTING_DEVICE_NOT_RESPONDING` | Device did not respond to parameter setting |
+| `16` | `PARAMETER_SETTING_RESPONSE_TIMEOUT` | Parameter setting response timed out |
+| `17` | `WRONG_PARAMETER_TYPE` | Wrong parameter type |
+| `18` | `READ_DEVICE_PARAM_FAIL` | Failed to read device parameter |
+| `19` | `DEVICE_ID_ALREADY_EXISTS` | Device ID already exists |
+| `20` | `PARAMETER_SETTING_REPLY_FAIL` | Parameter setting reply failed |
+| `100` | `API_LIMIT` | API limit reached |
+| `101` | `PERMISSION_DENIED` | Permission denied |
+| `102` | `FREQUENTLY_ACCESS` | Access too frequent |
+| `103` | `WRONG_GRANT_TYPE` | Wrong grant type |
+| `103` | `ENCRYPTION_DATA_FAIL` | Encryption data failed |
+| `104` | `WRONG_REQUEST_ID` | Wrong request ID |
+| `105` | `TOO_MANY_REQUEST` | Too many requests |
+
 ## Device Dispatch Parameters
 
 | `setType` | Description | `value` format |

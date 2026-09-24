@@ -79,6 +79,42 @@ sequenceDiagram
 | 设置参数失败 | `6` | `null` | `"PARAMETER_SETTING_FAILED"` |
 | 请求过于频繁 | `105` | `null` | `"TOO_MANY_REQUEST"` |
 
+### 错误码
+
+以下为古瑞瓦特当前使用的响应码及对应消息。相同响应码可能对应不同消息，请结合 `message` 判断具体结果。
+
+| `code` | `message` | 说明 |
+| :--- | :--- | :--- |
+| `0` | `SUCCESSFUL_OPERATION` | 操作成功 |
+| `0` | `PARAMETER_SETTING_SUCCESSFUL` | 参数设置成功 |
+| `1` | `SYSTEM_ERROR` | 系统错误 |
+| `2` | `TOKEN_IS_INVALID` | Token 无效 |
+| `3` | `DATA_PERMISSION_VERIFICATION_FAILED` | 数据权限校验失败 |
+| `4` | `DEVICE_DOES_NOT_EXIST` | 设备不存在 |
+| `5` | `DEVICE_OFFLINE` | 设备离线 |
+| `6` | `PARAMETER_SETTING_FAILED` | 参数设置失败 |
+| `7` | `WRONG_DEVICE_TYPE` | 设备类型错误 |
+| `8` | `DEVICE_SN_CANNOT_BE_EMPTY` | 设备 SN 不能为空 |
+| `9` | `DATE_CANNOT_BE_EMPTY` | 日期不能为空 |
+| `10` | `PAGE_EMPTY` | 页码不能为空 |
+| `11` | `DEVICE_SN_COUNT_LIMIT` | 设备 SN 数量超出限制 |
+| `12` | `DEVICE_SN_DOES_NOT_HAVE_PERMISSION` | 设备 SN 无权限 |
+| `13` | `VALUE_PARAMETER_VERIFICATION_FAILED` | value 参数校验失败 |
+| `14` | `WRONG_PARAMETER_VALUE` | 参数值错误 |
+| `15` | `PARAMETER_SETTING_DEVICE_NOT_RESPONDING` | 参数设置时设备无响应 |
+| `16` | `PARAMETER_SETTING_RESPONSE_TIMEOUT` | 参数设置响应超时 |
+| `17` | `WRONG_PARAMETER_TYPE` | 参数类型错误 |
+| `18` | `READ_DEVICE_PARAM_FAIL` | 读取设备参数失败 |
+| `19` | `DEVICE_ID_ALREADY_EXISTS` | 设备 ID 已存在 |
+| `20` | `PARAMETER_SETTING_REPLY_FAIL` | 参数设置回复失败 |
+| `100` | `API_LIMIT` | API 调用受限 |
+| `101` | `PERMISSION_DENIED` | 权限不足 |
+| `102` | `FREQUENTLY_ACCESS` | 访问过于频繁 |
+| `103` | `WRONG_GRANT_TYPE` | 授权类型错误 |
+| `103` | `ENCRYPTION_DATA_FAIL` | 加密数据失败 |
+| `104` | `WRONG_REQUEST_ID` | requestId 错误 |
+| `105` | `TOO_MANY_REQUEST` | 请求数量过多 |
+
 ## 设备调度参数
 
 | `setType` | 说明 | `value` 格式 |
